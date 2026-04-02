@@ -1,0 +1,10 @@
+.language_buttons {
+    position: absolute;
+    top: 0px;
+    right: 5px;
+}
+
+.language_buttons button {
+    background: none;
+    border: none;
+}

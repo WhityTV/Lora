@@ -4,6 +4,7 @@ require_once __DIR__ . '/lan/lan.php';
 
 class Cor extends Lan {
     public function __construct() {
+    parent::__construct();
     }
     
     public function cor() {
@@ -12,4 +13,4 @@ class Cor extends Lan {
 }
 
 $cor = new Cor();
-$cor->cor();
+$cor->cor();        

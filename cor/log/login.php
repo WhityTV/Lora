@@ -5,15 +5,16 @@ class Login extends Lan {
     public function __construct() {
         parent::__construct();
     }
-    public function getUsrname() {
-        return $this->getLan('usrname');
-    }
-    public function getPass() {
-        return $this->getLan('pass');
-    }
 }
 
 $login = new Login();
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['username'], $_POST['password'])) {
+    $username = $_POST['username'];
+    $password = $_POST['password'];
+    header("Location: ../index.php");
+    exit;
+}
 ?>
 
 <html>
@@ -22,20 +23,25 @@ $login = new Login();
     </head>
     <body>
         <h1>Login</h1>
-        <form>
+        <form method="post">
             <label for="username">
                 <?php
-                    echo($login->getUsrname());
+                    echo($login->getLan('usrname'));
                 ?>
             </label><br>
             <input type="text" id="username" name="username"><br>
             <label for="password">
                 <?php
-                    echo($login->getPass());
+                    echo($login->getLan('pass'));
                 ?>
             </label><br>
             <input type="password" id="password" name="password"><br><br>
-            <input type="submit" value="Login">
+            <input type="submit" value="<?php echo $login->getLan('login'); ?>">
+            <p>
+                <a href="forgot_password.php"><?php echo $login->getLan('forgot_pass'); ?></a>
+                |
+                <a href="../reg/register.php"><?php echo $login->getLan('register'); ?></a>
+            </p>
         </form>
         <div class="language_buttons">
             <form method="post">
