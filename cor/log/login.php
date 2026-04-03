@@ -4,6 +4,7 @@ require_once __DIR__ . '/../lan/lan.php';
 class Login extends Lan {
     public function __construct() {
         parent::__construct();
+
     }
 }
 
@@ -12,8 +13,21 @@ $login = new Login();
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['username'], $_POST['password'])) {
     $username = $_POST['username'];
     $password = $_POST['password'];
-    header("Location: ../index.php");
-    exit;
+    $safeUsername = $login->esc($username);
+    $result = $login->qry("SELECT password FROM al_usr WHERE username = '{$safeUsername}';");
+    $password_hash = '';
+
+    if ($result) {
+        $row = mysqli_fetch_assoc($result);
+        $password_hash = $row['password'] ?? '';
+    }
+
+    if ($password_hash !== '' && password_verify($password, $password_hash)) {
+        header("Location: ../index.php");
+        exit;
+    } else {
+        echo $login->getLan('login_failed');
+    }
 }
 ?>
 

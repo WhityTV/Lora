@@ -26,4 +26,8 @@ class Functions {
         }
         return $res;
     }
+
+    public function esc(string $value): string {
+        return $this->mysqli->real_escape_string($value);
+    }
 }
