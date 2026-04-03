@@ -9,9 +9,11 @@ class Functions {
 
 
     public function __construct() {
-        $this->mysqli = new mysqli($this->DB_HOST, $this->DB_USER, $this->DB_PASS, $this->DB_NAME);
-        if ($this->mysqli->connect_error) {
-            die('Connection failed: ' . $this->mysqli->connect_error);
+        mysqli_report(MYSQLI_REPORT_OFF);
+        $this->mysqli = @new mysqli($this->DB_HOST, $this->DB_USER, $this->DB_PASS, $this->DB_NAME);
+        if ($this->mysqli->connect_errno) {
+            error_log('Connection failed: ' . $this->mysqli->connect_error);
+            exit;
         }
         $this->mysqli->set_charset("utf8mb4");
     }
