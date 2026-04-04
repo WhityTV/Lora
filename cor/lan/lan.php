@@ -22,14 +22,26 @@ class Lan extends Functions {
         if ($syslan == 'DE') {
             $sql = "SELECT val_de FROM lan_variables WHERE code = '{$code}';";
             $lan_val_de = $this->qry($sql);
-            $row = mysqli_fetch_assoc($lan_val_de);
-            return $row['val_de'];
+            if ($lan_val_de) {
+                $row = mysqli_fetch_assoc($lan_val_de);
+                if ($row && isset($row['val_de']) && $row['val_de'] !== '') {
+                    return $row['val_de'];
+                }
+            }
+            return 'lan.' . $code;
         } elseif ($syslan == 'EN') {
             $sql = "SELECT val_en FROM lan_variables WHERE code = '{$code}';";
             $lan_val_en = $this->qry($sql);
-            $row = mysqli_fetch_assoc($lan_val_en);
-            return $row['val_en'];
+            if ($lan_val_en) {
+                $row = mysqli_fetch_assoc($lan_val_en);
+                if ($row && isset($row['val_en']) && $row['val_en'] !== '') {
+                    return $row['val_en'];
+                }
+            }
+            return 'lan.' . $code;
         }
+
+        return 'lan.' . $code;
     }
 
     // ToDo: Implement setLan function to update or add language values in the database

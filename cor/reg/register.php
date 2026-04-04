@@ -115,6 +115,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['firstname'], $_POST['
             <input type="password" id="confirm_password" name="confirm_password">
             <p>
                 <input type="submit" value="<?php echo $register->getLan('register'); ?>">
+                <input type="button" value="<?php echo $register->getLan('cancel'); ?>" onclick="window.location.href='../log/login.php';">
             </p>
         </form>
         <div class="language_buttons">
