@@ -106,13 +106,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['firstname'], $_POST['
                     echo($register->getLan('pass'));
                 ?>
             </label><br>
-            <input type="password" id="password" name="password"><br>
+            <input type="password" id="password" name="password" autocomplete="new-password"><br>
             <label for="confirm_password">
                 <?php
                     echo($register->getLan('confirm_pass'));
                 ?>
             </label><br>
-            <input type="password" id="confirm_password" name="confirm_password">
+            <input type="password" id="confirm_password" name="confirm_password" autocomplete="new-password">
             <p>
                 <input type="submit" value="<?php echo $register->getLan('register'); ?>">
                 <input type="button" value="<?php echo $register->getLan('cancel'); ?>" onclick="window.location.href='../log/login.php';">

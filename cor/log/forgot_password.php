@@ -22,7 +22,7 @@ $step = $_SESSION['reset_step'] ?? 'email';
 // Resolve step from session with password step taking precedence.
 if (isset($_SESSION['reset_verified']) && $_SESSION['reset_verified'] === true) {
     $step = 'password';
-} elseif (isset($_SESSION['reset_email'])) {
+} elseif (isset($_SESSION['reset_email']) || isset($_SESSION['reset_user_id'])) {
     $step = 'code';
 }
 
@@ -32,7 +32,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['send_code'])) {
     $safeEmail = $forgotPassword->esc($email);
 
     $userResult = $forgotPassword->qry("SELECT id FROM al_usr WHERE mail = '{$safeEmail}' LIMIT 1;");
-    $userExists = ($userResult && $userResult->num_rows > 0);
+    $userRow = ($userResult && $userResult->num_rows > 0) ? mysqli_fetch_assoc($userResult) : null;
+    $userExists = ($userRow !== null);
 
     if (!$userExists) {
         $statusMsg = $forgotPassword->getLan('email_not_existent');
@@ -59,6 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['send_code'])) {
         if ($mailSent) {
             $statusMsg = $forgotPassword->getLan('reset_code_sent');
             $_SESSION['reset_email'] = $email;
+            $_SESSION['reset_user_id'] = (int) $userRow['id'];
             $_SESSION['reset_step'] = 'code';
             unset($_SESSION['reset_verified']);
             $step = 'code';
@@ -77,7 +79,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['send_code'])) {
 
 // Go back to email step when user wants to request a new code.
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['resend_code'])) {
-    unset($_SESSION['reset_email'], $_SESSION['reset_verified'], $_SESSION['reset_step']);
+    unset($_SESSION['reset_email'], $_SESSION['reset_user_id'], $_SESSION['reset_verified'], $_SESSION['reset_step']);
     session_write_close();
     header('Location: forgot_password.php');
     exit;
@@ -90,7 +92,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cancel_reset'])) {
         $forgotPassword->qry("DELETE FROM password_reset_tokens WHERE email = '{$safeEmail}' AND (used IS NULL OR used = 0);");
     }
 
-    unset($_SESSION['reset_email'], $_SESSION['reset_verified'], $_SESSION['reset_step']);
+    unset($_SESSION['reset_email'], $_SESSION['reset_user_id'], $_SESSION['reset_verified'], $_SESSION['reset_step']);
     session_write_close();
     header('Location: login.php');
     exit;
@@ -137,6 +139,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_password'])) {
     $password = $_POST['new_password'] ?? '';
     $confirmPassword = $_POST['confirm_password'] ?? '';
     $resetEmail = $_SESSION['reset_email'] ?? '';
+    $resetUserId = isset($_SESSION['reset_user_id']) ? (int) $_SESSION['reset_user_id'] : 0;
     $isVerified = isset($_SESSION['reset_verified']) && $_SESSION['reset_verified'] === true;
 
     if (!$isVerified) {
@@ -173,8 +176,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_password'])) {
         }
 
         $safeEmail = $forgotPassword->esc($resetEmail);
-        $userResult = $forgotPassword->qry("SELECT firstname, lastname, username, mail FROM al_usr WHERE mail = '{$safeEmail}' LIMIT 1;");
+        $userResult = null;
+        if ($resetUserId > 0) {
+            $userResult = $forgotPassword->qry("SELECT id, firstname, lastname, username, mail FROM al_usr WHERE id = {$resetUserId} LIMIT 1;");
+        }
+
+        // Fallback: resolve account by email when no valid user id exists in session.
+        if ((!$userResult || $userResult->num_rows === 0) && $safeEmail !== '') {
+            $userResult = $forgotPassword->qry("SELECT id, firstname, lastname, username, mail FROM al_usr WHERE mail = '{$safeEmail}' LIMIT 1;");
+        }
+
         $userRow = ($userResult && $userResult->num_rows > 0) ? mysqli_fetch_assoc($userResult) : [];
+        if (empty($userRow) || !isset($userRow['id'])) {
+            $errors[] = $forgotPassword->getLan('code_invalid');
+        } else {
+            $resetUserId = (int) $userRow['id'];
+        }
         $personalValues = [
             $userRow['firstname'] ?? '',
             $userRow['lastname'] ?? '',
@@ -191,20 +208,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_password'])) {
         if (empty($errors)) {
             $passwordHash = password_hash($password, PASSWORD_ARGON2ID);
             $safeHash = $forgotPassword->esc($passwordHash);
-            $forgotPassword->qry("UPDATE al_usr SET password = '{$safeHash}' WHERE mail = '{$safeEmail}';");
+            $updateResult = $forgotPassword->qry("UPDATE al_usr SET password = '{$safeHash}' WHERE id = {$resetUserId};");
+            if ($updateResult === false) {
+                $errors[] = $forgotPassword->getLan('login_failed');
+                $_SESSION['reset_step'] = 'password';
+                $step = 'password';
+            }
 
-            // Send confirmation email after successful password reset.
-            $confirmSubject = $forgotPassword->getLan('reset_pass');
-            $confirmMessage = '<html><body>';
-            $confirmMessage .= '<p>' . $forgotPassword->getLan('pass_reset_success') . '</p>';
-            $confirmMessage .= '</body></html>';
-            $confirmHeaders = "From: brightymightywhity@gmail.com\r\n";
-            $confirmHeaders .= "Content-Type: text/html; charset=UTF-8\r\n";
-            mail($resetEmail, $confirmSubject, $confirmMessage, $confirmHeaders);
+            if ($updateResult !== false) {
+                // Read back and verify the saved hash to ensure the reset actually persisted.
+                $verifyResult = $forgotPassword->qry("SELECT password FROM al_usr WHERE id = {$resetUserId} LIMIT 1;");
+                $verifyRow = ($verifyResult && $verifyResult->num_rows > 0) ? mysqli_fetch_assoc($verifyResult) : null;
+                $storedHash = $verifyRow['password'] ?? '';
+                if ($storedHash === '' || !password_verify($password, $storedHash)) {
+                    $errors[] = $forgotPassword->getLan('login_failed');
+                    $_SESSION['reset_step'] = 'password';
+                    $step = 'password';
+                }
+            }
 
-            unset($_SESSION['reset_email'], $_SESSION['reset_verified']);
-            header('Location: login.php');
-            exit;
+            if ($updateResult !== false && empty($errors)) {
+                // Send confirmation email after successful password reset.
+                $confirmSubject = $forgotPassword->getLan('reset_pass');
+                $confirmMessage = '<html><body>';
+                $confirmMessage .= '<p>' . $forgotPassword->getLan('pass_reset_success') . '</p>';
+                $confirmMessage .= '</body></html>';
+                $confirmHeaders = "From: brightymightywhity@gmail.com\r\n";
+                $confirmHeaders .= "Content-Type: text/html; charset=UTF-8\r\n";
+                mail($resetEmail, $confirmSubject, $confirmMessage, $confirmHeaders);
+
+                unset($_SESSION['reset_email'], $_SESSION['reset_user_id'], $_SESSION['reset_verified']);
+                header('Location: login.php');
+                exit;
+            }
         } else {
             $_SESSION['reset_step'] = 'password';
             $step = 'password';
@@ -317,13 +353,13 @@ $pageTitle = $step === 'password' ? $forgotPassword->getLan('reset_pass') : $for
                     echo $forgotPassword->getLan('new_pass');
                     ?>
                 </label><br>
-                <input type="password" id="new_password" name="new_password" required><br>
+                <input type="password" id="new_password" name="new_password" autocomplete="new-password" required><br>
                 <label for="confirm_password">
                     <?php
                     echo $forgotPassword->getLan('confirm_pass');
                     ?>
                 </label><br>
-                <input type="password" id="confirm_password" name="confirm_password" required>
+                <input type="password" id="confirm_password" name="confirm_password" autocomplete="new-password" required>
                 <p>
                     <input type="submit" name="save_password" value="<?php echo $forgotPassword->getLan('register'); ?>">
                     <input type="submit" name="cancel_reset" value="<?php echo $forgotPassword->getLan('cancel'); ?>" formnovalidate>

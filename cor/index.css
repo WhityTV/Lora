@@ -1,0 +1,44 @@
+.menu {
+    font-size: x-large;
+}
+
+.logo {
+    display: block;
+    margin-left: -30px;
+    margin-top: -30px;
+}
+
+a {
+    text-decoration: none;
+    color: black;
+}
+
+a:hover {
+    color: royalblue;
+}
+
+.art_cat {
+    display: none;
+    position: absolute;
+    font-family: serif;
+    font-size: large;
+    white-space: nowrap;
+}
+
+.art_cat_wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+.language_buttons {
+    position: absolute;
+    top: 0px;
+    right: 5px;
+}
+
+.language_buttons button {
+    background: transparent;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+}

@@ -43,13 +43,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['username'], $_POST['p
                     echo($login->getLan('usrname'));
                 ?>
             </label><br>
-            <input type="text" id="username" name="username"><br>
+            <input type="text" id="username" name="username" autocomplete="username"><br>
             <label for="password">
                 <?php
                     echo($login->getLan('pass'));
                 ?>
             </label><br>
-            <input type="password" id="password" name="password"><br><br>
+            <input type="password" id="password" name="password" autocomplete="current-password"><br><br>
             <input type="submit" value="<?php echo $login->getLan('login'); ?>">
             <p>
                 <a href="forgot_password.php"><?php echo $login->getLan('forgot_pass'); ?></a>

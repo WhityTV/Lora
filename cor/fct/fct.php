@@ -5,7 +5,7 @@ class Functions {
     private $DB_HOST = '127.0.0.1';
     private $DB_USER = 'root';
     private $DB_PASS = '';
-    private $DB_NAME = 'lora';
+    private $DB_NAME = 'mihiway';
 
 
     public function __construct() {

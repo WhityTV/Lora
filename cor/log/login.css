@@ -5,6 +5,8 @@
 }
 
 .language_buttons button {
-    background: none;
+    background: transparent;
     border: none;
+    padding: 0;
+    cursor: pointer;
 }
