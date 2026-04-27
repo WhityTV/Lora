@@ -9,24 +9,37 @@ class Login extends Lan {
 }
 
 $login = new Login();
+$statusMsg = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['username'], $_POST['password'])) {
-    $username = $_POST['username'];
+    $username = trim($_POST['username']);
     $password = $_POST['password'];
     $safeUsername = $login->esc($username);
-    $result = $login->qry("SELECT password FROM al_usr WHERE username = '{$safeUsername}';");
-    $password_hash = '';
+    $result = $login->qry("SELECT id, password, login_attempts, disabled FROM al_usr WHERE username = '{$safeUsername}' LIMIT 1;");
+    $userRow = ($result && $result->num_rows > 0) ? mysqli_fetch_assoc($result) : null;
 
-    if ($result) {
-        $row = mysqli_fetch_assoc($result);
-        $password_hash = $row['password'] ?? '';
-    }
-
-    if ($password_hash !== '' && password_verify($password, $password_hash)) {
+    if ($userRow && (($userRow['disabled'] ?? 'N') === 'Y')) {
+        $statusMsg = $login->getLan('account_disabled');
+    } elseif ($userRow && isset($userRow['password']) && password_verify($password, $userRow['password'])) {
+        $userId = (int) $userRow['id'];
+        $login->qry("UPDATE al_usr SET login_attempts = 0 WHERE id = {$userId};");
         header("Location: ../index.php");
         exit;
     } else {
-        echo $login->getLan('login_failed');
+        if ($userRow && isset($userRow['id'])) {
+            $userId = (int) $userRow['id'];
+            $attempts = (int) ($userRow['login_attempts'] ?? 0) + 1;
+
+            if ($attempts >= 3) {
+                $login->qry("UPDATE al_usr SET login_attempts = {$attempts}, disabled = 'Y' WHERE id = {$userId};");
+                $statusMsg = $login->getLan('account_disabled');
+            } else {
+                $login->qry("UPDATE al_usr SET login_attempts = {$attempts} WHERE id = {$userId};");
+                $statusMsg = $login->getLan('login_failed');
+            }
+        } else {
+            $statusMsg = $login->getLan('login_failed');
+        }
     }
 }
 ?>
@@ -37,6 +50,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['username'], $_POST['p
     </head>
     <body>
         <h1>Login</h1>
+        <?php
+        if ($statusMsg !== '') {
+        ?>
+            <p>
+                <?php
+                echo htmlspecialchars($statusMsg, ENT_QUOTES, 'UTF-8');
+                ?>
+            </p>
+        <?php
+        }
+        ?>
         <form method="post">
             <label for="username">
                 <?php

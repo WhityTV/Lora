@@ -20,7 +20,7 @@ class Lan extends Functions {
     public function getLan($code) {
         $syslan = $this->getSysLan();
         if ($syslan == 'DE') {
-            $sql = "SELECT val_de FROM lan_variables WHERE code = '{$code}';";
+            $sql = "SELECT val_de FROM lang_variables WHERE code = '{$code}';";
             $lan_val_de = $this->qry($sql);
             if ($lan_val_de) {
                 $row = mysqli_fetch_assoc($lan_val_de);
@@ -30,7 +30,7 @@ class Lan extends Functions {
             }
             return 'lan.' . $code;
         } elseif ($syslan == 'EN') {
-            $sql = "SELECT val_en FROM lan_variables WHERE code = '{$code}';";
+            $sql = "SELECT val_en FROM lang_variables WHERE code = '{$code}';";
             $lan_val_en = $this->qry($sql);
             if ($lan_val_en) {
                 $row = mysqli_fetch_assoc($lan_val_en);

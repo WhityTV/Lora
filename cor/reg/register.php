@@ -27,25 +27,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['firstname'], $_POST['
         $errors[] = $register->getLan('pass_mismatch');
     }
 
-    if (strlen($passwordInput) < 8) {
+    if (strlen($passwordInput) < 15) {
         $errors[] = $register->getLan('pass_too_short');
     }
 
-    if (!preg_match('/\p{Lu}/u', $passwordInput)) {
-        $errors[] = $register->getLan('pass_uppercase');
+    if ($register->hasWeakRepetitionPattern($passwordInput)) {
+        $errors[] = $register->getLan('pass_weak_pattern');
     }
 
-    if (!preg_match('/\p{Ll}/u', $passwordInput)) {
-        $errors[] = $register->getLan('pass_lowercase');
-    }
+    // if (!preg_match('/\p{Lu}/u', $passwordInput)) {
+    //     $errors[] = $register->getLan('pass_uppercase');
+    // }
 
-    if (!preg_match('/\d/', $passwordInput)) {
-        $errors[] = $register->getLan('pass_number');
-    }
+    // if (!preg_match('/\p{Ll}/u', $passwordInput)) {
+    //     $errors[] = $register->getLan('pass_lowercase');
+    // }
 
-    if (!preg_match('/[^\p{L}\d\s]/u', $passwordInput)) {
-        $errors[] = $register->getLan('pass_special_char');
-    }
+    // if (!preg_match('/\d/', $passwordInput)) {
+    //     $errors[] = $register->getLan('pass_number');
+    // }
+
+    // if (!preg_match('/[^\p{L}\d\s]/u', $passwordInput)) {
+    //     $errors[] = $register->getLan('pass_special_char');
+    // }
 
     $personalValues = [$firstname, $lastname, $username, $email];
     foreach ($personalValues as $personalValue) {
@@ -53,6 +57,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['firstname'], $_POST['
             $errors[] = $register->getLan('pass_contains_personal_info');
             break;
         }
+    }
+
+    if ($register->isCommonOrPwnedBlackListedPassword($passwordInput)) {
+        $errors[] = $register->getLan('pass_blacklisted');
     }
 
     if (empty($errors)) {
@@ -97,7 +105,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['firstname'], $_POST['
             <input type="text" id="username" name="username" value="<?php echo htmlspecialchars($_POST['username'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"><br>
             <label for="email">
                 <?php
-                    echo($register->getLan('email'));
+                    echo($register->getLan('mail'));
                 ?>
             </label><br>
             <input type="email" id="email" name="email" value="<?php echo htmlspecialchars($_POST['email'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"><br>

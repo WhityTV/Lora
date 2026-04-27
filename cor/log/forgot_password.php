@@ -16,37 +16,38 @@ if (isset($_POST['syslang']) && in_array($_POST['syslang'], ['EN', 'DE'])) {
     header("Refresh:0");
 }
 
-// UI states: email -> code -> password.
-$step = $_SESSION['reset_step'] ?? 'email';
+// UI states: mail -> code -> password.
+$step = $_SESSION['reset_step'] ?? 'mail';
 
 // Resolve step from session with password step taking precedence.
 if (isset($_SESSION['reset_verified']) && $_SESSION['reset_verified'] === true) {
     $step = 'password';
-} elseif (isset($_SESSION['reset_email']) || isset($_SESSION['reset_user_id'])) {
+} elseif (isset($_SESSION['reset_mail']) || isset($_SESSION['reset_user_id'])) {
     $step = 'code';
 }
 
-// Step 1: Generate and send reset code to the requested email.
+// Step 1: Generate and send reset code to the requested mail.
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['send_code'])) {
-    $email = trim($_POST['email']);
-    $safeEmail = $forgotPassword->esc($email);
+    $mail = trim($_POST['mail']);
+    $safemail = $forgotPassword->esc($mail);
 
-    $userResult = $forgotPassword->qry("SELECT id FROM al_usr WHERE mail = '{$safeEmail}' LIMIT 1;");
+    $userResult = $forgotPassword->qry("SELECT id, disabled FROM al_usr WHERE mail = '{$safemail}' LIMIT 1;");
     $userRow = ($userResult && $userResult->num_rows > 0) ? mysqli_fetch_assoc($userResult) : null;
     $userExists = ($userRow !== null);
+    $userDisabled = $userExists && (($userRow['disabled'] ?? 'N') === 'Y');
 
-    if (!$userExists) {
-        $statusMsg = $forgotPassword->getLan('email_not_existent');
-        $step = 'email';
+    if (!$userExists || $userDisabled) {
+        $statusMsg = $forgotPassword->getLan('mail_not_existent');
+        $step = 'mail';
     } else {
         $code = strtoupper(bin2hex(random_bytes(3)));
         $tokenHash = hash('sha256', $code);
 
-        // Invalidate all previous tokens for this email so only the latest is valid.
-        $forgotPassword->qry("DELETE FROM password_reset_tokens WHERE email = '{$safeEmail}';");
+        // Invalidate all previous tokens for this mail so only the latest is valid.
+        $forgotPassword->qry("DELETE FROM password_reset_tokens WHERE mail = '{$safemail}';");
 
         // Store token hash with a 15-minute expiry window.
-        $forgotPassword->qry("INSERT INTO password_reset_tokens (email, token_hash, expires_at, used) VALUES ('{$safeEmail}', '{$tokenHash}', DATE_ADD(NOW(), INTERVAL 15 MINUTE), 0);");
+        $forgotPassword->qry("INSERT INTO password_reset_tokens (mail, token_hash, expires_at, used) VALUES ('{$safemail}', '{$tokenHash}', DATE_ADD(NOW(), INTERVAL 15 MINUTE), 'N');");
 
         $subject = $forgotPassword->getLan('pass_reset_code');
         $message = '<html><body>';
@@ -55,31 +56,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['send_code'])) {
         $message .= '</body></html>';
         $headers = "From: brightymightywhity@gmail.com\r\n";
         $headers .= "Content-Type: text/html; charset=UTF-8\r\n";
-        $mailSent = mail($email, $subject, $message, $headers);
+        $mailSent = mail($mail, $subject, $message, $headers);
 
         if ($mailSent) {
             $statusMsg = $forgotPassword->getLan('reset_code_sent');
-            $_SESSION['reset_email'] = $email;
+            $_SESSION['reset_mail'] = $mail;
             $_SESSION['reset_user_id'] = (int) $userRow['id'];
             $_SESSION['reset_step'] = 'code';
             unset($_SESSION['reset_verified']);
             $step = 'code';
         } else {
-            $statusMsg = $forgotPassword->getLan('email_not_existent');
+            $statusMsg = $forgotPassword->getLan('mail_not_existent');
             error_log(
-                'mail() failed in forgot_password.php | email=' . $email .
+                'mail() failed in forgot_password.php | mail=' . $mail .
                 ' | SMTP=' . (string) ini_get('SMTP') .
                 ' | smtp_port=' . (string) ini_get('smtp_port') .
                 ' | sendmail_from=' . (string) ini_get('sendmail_from')
             );
-            $step = 'email';
+            $step = 'mail';
         }
     }
 }
 
-// Go back to email step when user wants to request a new code.
+// Go back to mail step when user wants to request a new code.
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['resend_code'])) {
-    unset($_SESSION['reset_email'], $_SESSION['reset_user_id'], $_SESSION['reset_verified'], $_SESSION['reset_step']);
+    unset($_SESSION['reset_mail'], $_SESSION['reset_user_id'], $_SESSION['reset_verified'], $_SESSION['reset_step']);
     session_write_close();
     header('Location: forgot_password.php');
     exit;
@@ -87,12 +88,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['resend_code'])) {
 
 // Cancel the reset flow entirely and return to login.
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cancel_reset'])) {
-    $safeEmail = $forgotPassword->esc($_SESSION['reset_email'] ?? '');
-    if ($safeEmail !== '') {
-        $forgotPassword->qry("DELETE FROM password_reset_tokens WHERE email = '{$safeEmail}' AND (used IS NULL OR used = 0);");
+    $safemail = $forgotPassword->esc($_SESSION['reset_mail'] ?? '');
+    if ($safemail !== '') {
+        $forgotPassword->qry("DELETE FROM password_reset_tokens WHERE mail = '{$safemail}' AND (used = 'N');");
     }
 
-    unset($_SESSION['reset_email'], $_SESSION['reset_user_id'], $_SESSION['reset_verified'], $_SESSION['reset_step']);
+    unset($_SESSION['reset_mail'], $_SESSION['reset_user_id'], $_SESSION['reset_verified'], $_SESSION['reset_step']);
     session_write_close();
     header('Location: login.php');
     exit;
@@ -101,35 +102,71 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cancel_reset'])) {
 // Step 2: Verify user entered code against the latest valid DB token.
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['verify_code'])) {
     $inputCode = strtoupper(trim($_POST['code'] ?? ''));
-    $safeEmail = $forgotPassword->esc($_SESSION['reset_email'] ?? '');
+    $safemail = $forgotPassword->esc($_SESSION['reset_mail'] ?? '');
+    $resetUserId = isset($_SESSION['reset_user_id']) ? (int) $_SESSION['reset_user_id'] : 0;
+
+    if ($resetUserId > 0) {
+        $userStateResult = $forgotPassword->qry("SELECT disabled FROM al_usr WHERE id = {$resetUserId} LIMIT 1;");
+        $userStateRow = ($userStateResult && $userStateResult->num_rows > 0) ? mysqli_fetch_assoc($userStateResult) : null;
+        if ($userStateRow && (($userStateRow['disabled'] ?? 'N') === 'Y')) {
+            $statusMsg = $forgotPassword->getLan('account_disabled');
+            $_SESSION['reset_step'] = 'mail';
+            $step = 'mail';
+        }
+    }
+
+    if ($step !== 'mail') {
 
         // Fetch only the latest token that is not expired and not yet used.
-    $result = $forgotPassword->qry(
-        "SELECT id, token_hash FROM password_reset_tokens
-          WHERE email = '{$safeEmail}'
+        $result = $forgotPassword->qry(
+            "SELECT id, token_hash FROM password_reset_tokens
+            WHERE mail = '{$safemail}'
             AND expires_at > NOW()
-                        AND (used IS NULL OR used = 0)
-          ORDER BY created_at DESC LIMIT 1;"
-    );
-    $row = ($result && $result->num_rows > 0) ? mysqli_fetch_assoc($result) : null;
+            AND (used = 'N')
+            ORDER BY created_at DESC LIMIT 1;"
+        );
+        $row = ($result && $result->num_rows > 0) ? mysqli_fetch_assoc($result) : null;
 
-    if ($row && hash_equals($row['token_hash'], hash('sha256', $inputCode))) {
-        // Consume token immediately after successful code entry.
-        $tokenId = (int) $row['id'];
-        $forgotPassword->qry("UPDATE password_reset_tokens SET used = 1 WHERE id = {$tokenId} AND (used IS NULL OR used = 0);");
+        if ($row && hash_equals($row['token_hash'], hash('sha256', $inputCode))) {
+            // Consume token immediately after successful code entry.
+            $tokenId = (int) $row['id'];
+            $forgotPassword->qry("UPDATE password_reset_tokens SET used = 'Y' WHERE id = {$tokenId} AND (used = 'N');");
 
-        $_SESSION['reset_verified'] = true;
-        $_SESSION['reset_step'] = 'password';
-        $step = 'password';
-        $statusMsg = '';
-        session_regenerate_id(true);
-        session_write_close();
-        header('Location: forgot_password.php');
-        exit;
-    } else {
-        $statusMsg = $forgotPassword->getLan('code_invalid');
-        $_SESSION['reset_step'] = 'code';
-        $step = 'code';
+            if ($resetUserId > 0) {
+                $forgotPassword->qry("UPDATE al_usr SET login_attempts = 0 WHERE id = {$resetUserId};");
+            }
+
+            $_SESSION['reset_verified'] = true;
+            $_SESSION['reset_step'] = 'password';
+            $step = 'password';
+            $statusMsg = '';
+            session_regenerate_id(true);
+            session_write_close();
+            header('Location: forgot_password.php');
+            exit;
+        } else {
+            if ($resetUserId > 0) {
+                $attemptsResult = $forgotPassword->qry("SELECT login_attempts FROM al_usr WHERE id = {$resetUserId} LIMIT 1;");
+                $attemptsRow = ($attemptsResult && $attemptsResult->num_rows > 0) ? mysqli_fetch_assoc($attemptsResult) : null;
+                $attempts = (int) ($attemptsRow['login_attempts'] ?? 0) + 1;
+
+                if ($attempts >= 3) {
+                    $forgotPassword->qry("UPDATE al_usr SET login_attempts = {$attempts}, disabled = 'Y' WHERE id = {$resetUserId};");
+                    $statusMsg = $forgotPassword->getLan('account_disabled');
+                    $_SESSION['reset_step'] = 'mail';
+                    $step = 'mail';
+                } else {
+                    $forgotPassword->qry("UPDATE al_usr SET login_attempts = {$attempts} WHERE id = {$resetUserId};");
+                    $statusMsg = $forgotPassword->getLan('code_invalid');
+                    $_SESSION['reset_step'] = 'code';
+                    $step = 'code';
+                }
+            } else {
+                $statusMsg = $forgotPassword->getLan('code_invalid');
+                $_SESSION['reset_step'] = 'code';
+                $step = 'code';
+            }
+        }
     }
 }
 
@@ -138,14 +175,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_password'])) {
     $errors = [];
     $password = $_POST['new_password'] ?? '';
     $confirmPassword = $_POST['confirm_password'] ?? '';
-    $resetEmail = $_SESSION['reset_email'] ?? '';
+    $resetmail = $_SESSION['reset_mail'] ?? '';
     $resetUserId = isset($_SESSION['reset_user_id']) ? (int) $_SESSION['reset_user_id'] : 0;
     $isVerified = isset($_SESSION['reset_verified']) && $_SESSION['reset_verified'] === true;
 
     if (!$isVerified) {
         $statusMsg = $forgotPassword->getLan('code_invalid');
-        $_SESSION['reset_step'] = 'email';
-        $step = 'email';
+        $_SESSION['reset_step'] = 'mail';
+        $step = 'mail';
     } else {
         if ($password === '' || $confirmPassword === '') {
             $errors[] = $forgotPassword->getLan('pass_not_empty');
@@ -155,35 +192,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_password'])) {
             $errors[] = $forgotPassword->getLan('pass_mismatch');
         }
 
-        if (strlen($password) < 8) {
+        if (strlen($password) < 15) {
             $errors[] = $forgotPassword->getLan('pass_too_short');
         }
 
-        if (!preg_match('/\p{Lu}/u', $password)) {
-            $errors[] = $forgotPassword->getLan('pass_uppercase');
+        if ($forgotPassword->hasWeakRepetitionPattern($password)) {
+            $errors[] = $forgotPassword->getLan('pass_weak_pattern');
         }
 
-        if (!preg_match('/\p{Ll}/u', $password)) {
-            $errors[] = $forgotPassword->getLan('pass_lowercase');
-        }
+        // Passord rules disabled due to NIST recommendation to not enforce specific complexity requirements, but can be re-enabled if desired.
 
-        if (!preg_match('/\d/', $password)) {
-            $errors[] = $forgotPassword->getLan('pass_number');
-        }
+        // if (!preg_match('/\p{Lu}/u', $password)) {
+        //     $errors[] = $forgotPassword->getLan('pass_uppercase');
+        // }
 
-        if (!preg_match('/[^\p{L}\d\s]/u', $password)) {
-            $errors[] = $forgotPassword->getLan('pass_special_char');
-        }
+        // if (!preg_match('/\p{Ll}/u', $password)) {
+        //     $errors[] = $forgotPassword->getLan('pass_lowercase');
+        // }
 
-        $safeEmail = $forgotPassword->esc($resetEmail);
+        // if (!preg_match('/\d/', $password)) {
+        //     $errors[] = $forgotPassword->getLan('pass_number');
+        // }
+
+        // if (!preg_match('/[^\p{L}\d\s]/u', $password)) {
+        //     $errors[] = $forgotPassword->getLan('pass_special_char');
+        // }
+
+        $safemail = $forgotPassword->esc($resetmail);
         $userResult = null;
         if ($resetUserId > 0) {
             $userResult = $forgotPassword->qry("SELECT id, firstname, lastname, username, mail FROM al_usr WHERE id = {$resetUserId} LIMIT 1;");
         }
 
-        // Fallback: resolve account by email when no valid user id exists in session.
-        if ((!$userResult || $userResult->num_rows === 0) && $safeEmail !== '') {
-            $userResult = $forgotPassword->qry("SELECT id, firstname, lastname, username, mail FROM al_usr WHERE mail = '{$safeEmail}' LIMIT 1;");
+        // Fallback: resolve account by mail when no valid user id exists in session.
+        if ((!$userResult || $userResult->num_rows === 0) && $safemail !== '') {
+            $userResult = $forgotPassword->qry("SELECT id, firstname, lastname, username, mail FROM al_usr WHERE mail = '{$safemail}' LIMIT 1;");
         }
 
         $userRow = ($userResult && $userResult->num_rows > 0) ? mysqli_fetch_assoc($userResult) : [];
@@ -192,17 +235,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_password'])) {
         } else {
             $resetUserId = (int) $userRow['id'];
         }
+
         $personalValues = [
             $userRow['firstname'] ?? '',
             $userRow['lastname'] ?? '',
             $userRow['username'] ?? '',
-            $userRow['mail'] ?? $resetEmail,
+            $userRow['mail'] ?? $resetmail,
         ];
         foreach ($personalValues as $personalValue) {
             if ($personalValue !== '' && stripos($password, $personalValue) !== false) {
                 $errors[] = $forgotPassword->getLan('pass_contains_personal_info');
                 break;
             }
+        }
+    
+        if ($forgotPassword->isCommonOrPwnedBlackListedPassword($password)) {
+            $errors[] = $forgotPassword->getLan('pass_blacklisted');
+
         }
 
         if (empty($errors)) {
@@ -228,16 +277,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_password'])) {
             }
 
             if ($updateResult !== false && empty($errors)) {
-                // Send confirmation email after successful password reset.
+                // Send confirmation mail after successful password reset.
                 $confirmSubject = $forgotPassword->getLan('reset_pass');
                 $confirmMessage = '<html><body>';
                 $confirmMessage .= '<p>' . $forgotPassword->getLan('pass_reset_success') . '</p>';
                 $confirmMessage .= '</body></html>';
                 $confirmHeaders = "From: brightymightywhity@gmail.com\r\n";
                 $confirmHeaders .= "Content-Type: text/html; charset=UTF-8\r\n";
-                mail($resetEmail, $confirmSubject, $confirmMessage, $confirmHeaders);
+                mail($resetmail, $confirmSubject, $confirmMessage, $confirmHeaders);
 
-                unset($_SESSION['reset_email'], $_SESSION['reset_user_id'], $_SESSION['reset_verified']);
+                unset($_SESSION['reset_mail'], $_SESSION['reset_user_id'], $_SESSION['reset_verified']);
                 header('Location: login.php');
                 exit;
             }
@@ -309,16 +358,16 @@ $pageTitle = $step === 'password' ? $forgotPassword->getLan('reset_pass') : $for
 
         <?php
         // Render form based on current step. 
-        if ($step === 'email') {
+        if ($step === 'mail') {
         ?>
             <form method="post">
-                <label for="email">
-                    <?php echo $forgotPassword->getLan('email');
+                <label for="mail">
+                    <?php echo $forgotPassword->getLan('mail');
                     ?>
                 </label><br>
-                <input type="email" id="email" name="email" required value="
+                <input type="mail" id="mail" name="mail" required value="
                     <?php 
-                    echo htmlspecialchars($_POST['email'] ?? '', ENT_QUOTES, 'UTF-8'); 
+                    echo htmlspecialchars($_POST['mail'] ?? '', ENT_QUOTES, 'UTF-8'); 
                     ?>
                 ">
                 <p>
