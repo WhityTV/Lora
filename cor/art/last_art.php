@@ -1,3 +1,1 @@
-<?php
-
-?>
+<h1> Last Articles </h1>

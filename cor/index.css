@@ -1,16 +1,47 @@
+html {
+    color-scheme: light;
+}
+
+html, body {
+    background-color: light-dark(#f0f2f2, dimgrey);
+    color: light-dark(#000000, #f5f5f5);
+}
+
 .menu {
     font-size: x-large;
+    position: absolute;
+    top: 57px;
+    left: 300px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: nowrap;
+}
+
+.menu a,
+.menu span,
+.menu form {
+    vertical-align: middle;
+}
+
+.menu > :not(.search-form) {
+    transform: translateY(-5px);
 }
 
 .logo {
     display: block;
     margin-left: -30px;
     margin-top: -30px;
+    background-color: transparent;
+    background-image: linear-gradient(light-dark(transparent, #ffffff), light-dark(transparent, #ffffff));
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 78% 72%;
 }
 
 a {
     text-decoration: none;
-    color: black;
+    color: light-dark(black, #f5f5f5);
 }
 
 a:hover {
@@ -30,6 +61,10 @@ a:hover {
     display: inline-block;
 }
 
+.art_cat_wrapper:hover {
+    color: royalblue;
+}
+
 .language_buttons {
     position: absolute;
     top: 0px;
@@ -41,4 +76,93 @@ a:hover {
     border: none;
     padding: 0;
     cursor: pointer;
+}
+
+.search-form {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: 12px;
+    vertical-align: middle;
+    margin-top: 15px;
+}
+
+.search-form input[name="search_query"] {
+    padding-left: 30px;
+    border: 1px solid light-dark(#000, #d0d0d0);
+    border-radius: 10px;
+    background-color: light-dark(#ffffff, dimgrey);
+    color: light-dark(#000000, #f5f5f5);
+    width: min(480px, 42vw);
+    height: 40px;
+    font-size: 16px;
+}
+
+.search-form .search-icon {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    transition: opacity 0.2s ease;
+}
+
+.search-form button {
+    height: 34px;
+    font-size: 16px;
+    color: light-dark(#fff, #f5f5f5);
+    border: 1px solid light-dark(#000, #d0d0d0);
+    border-radius: 10px;
+    background-color: light-dark(#034279, dimgrey);
+}
+
+.create_art {
+    margin-left: 16px;
+}
+
+@media (max-width: 1100px) {
+    .logo {
+        margin-left: 8px;
+        margin-top: 0;
+    }
+
+    .menu {
+        position: static;
+        margin: 10px 12px 0;
+        font-size: 18px;
+        flex-wrap: wrap;
+        align-items: center;
+        left: auto;
+        top: auto;
+        gap: 10px;
+    }
+
+    .menu > :not(.search-form) {
+        transform: none;
+    }
+
+    .search-form {
+        order: 99;
+        width: 100%;
+        margin-left: 0;
+        margin-top: 4px;
+    }
+
+    .search-form input[name="search_query"] {
+        width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+    }
+}
+
+@media (max-width: 700px) {
+    .menu {
+        font-size: 16px;
+        gap: 8px;
+    }
+
+    .search-form button {
+        height: 32px;
+        font-size: 14px;
+    }
 }

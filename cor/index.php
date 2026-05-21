@@ -41,13 +41,20 @@ $cor = new Cor();
             </span>
             <a href="art/saved.php"><strong><?php echo $cor->getLan('saved_art'); ?> | </strong></a>
             <span class = "art_cat_wrapper">
-                <strong class="last_art"><?php echo $cor->getLan('last_art'); ?></strong>
-
-                <div class = "art_cat">
-                    <?php include 'art/last_art.php'; ?>
-                </div>
+                <a href="art/last_art.php"><strong><?php echo $cor->getLan('last_art'); ?></strong></a>
             </span>
-        </div>
+            <form class="search-form" method="get" action="ser/search.php">
+                <img class="search-icon" src="../icons/search.png" alt="Search" width="15" height="15">
+                <input type="text" name="search_query" placeholder="">
+                <button type="submit"><?php echo $cor->getLan('search'); ?></button>
+            </form>
+            <span class="create_art">
+                <a href="art/create.php"><strong><?php echo $cor->getLan('create_art'); ?> | </strong></a>
+            </span>
+            <span class="order_summary">
+                <a href="ord/summary.php"><strong><?php echo $cor->getLan('order_summary'); ?></strong></a>
+            </span>
+            </div>
 
 
         <div class="language_buttons">
