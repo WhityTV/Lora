@@ -13,7 +13,7 @@ class Functions {
         $this->mysqli = @new mysqli($this->DB_HOST, $this->DB_USER, $this->DB_PASS, $this->DB_NAME);
         if ($this->mysqli->connect_errno) {
             error_log('Connection failed: ' . $this->mysqli->connect_error);
-            exit;
+            return;
         }
         $this->mysqli->set_charset("utf8mb4");
     }

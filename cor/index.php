@@ -44,7 +44,7 @@ $cor = new Cor();
                 <strong class="last_art"><?php echo $cor->getLan('last_art'); ?></strong>
 
                 <div class = "art_cat">
-                    <?php include 'art/last._art.php'; ?>
+                    <?php include 'art/last_art.php'; ?>
                 </div>
             </span>
         </div>
