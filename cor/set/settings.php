@@ -12,4 +12,4 @@ if (!isset($_SESSION['userId'])) {
 }
 ?>
 
-<h1> Saved Articles </h1>
+<h1>Einstellungen</h1>

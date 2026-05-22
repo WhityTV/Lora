@@ -22,6 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['username'], $_POST['p
         $statusMsg = $login->getLan('account_disabled');
     } elseif ($userRow && isset($userRow['password']) && password_verify($password, $userRow['password'])) {
         $userId = (int) $userRow['id'];
+        $_SESSION['userId'] = $userId;
         $login->qry("UPDATE al_usr SET login_attempts = 0 WHERE id = {$userId};");
         header("Location: ../index.php");
         exit;

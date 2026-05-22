@@ -1,5 +1,6 @@
 html {
     color-scheme: light;
+    font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
 }
 
 html, body {
@@ -11,11 +12,13 @@ html, body {
     font-size: x-large;
     position: absolute;
     top: 57px;
-    left: 300px;
-    display: flex;
+    left: 0;
+    right: 0;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
     align-items: center;
-    gap: 12px;
-    flex-wrap: nowrap;
+    column-gap: 16px;
+    padding: 0 24px;
 }
 
 .menu a,
@@ -24,8 +27,21 @@ html, body {
     vertical-align: middle;
 }
 
-.menu > :not(.search-form) {
-    transform: translateY(-5px);
+.menu-left,
+.menu-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+    white-space: nowrap;
+}
+
+.menu-left {
+    justify-self: end;
+}
+
+.menu-right {
+    justify-self: start;
 }
 
 .logo {
@@ -42,16 +58,20 @@ html, body {
 a {
     text-decoration: none;
     color: light-dark(black, #f5f5f5);
+    cursor: pointer;
 }
 
 a:hover {
     color: royalblue;
 }
 
+.art_cat_trigger {
+    cursor: pointer;
+}
+
 .art_cat {
     display: none;
     position: absolute;
-    font-family: serif;
     font-size: large;
     white-space: nowrap;
 }
@@ -79,13 +99,15 @@ a:hover {
 }
 
 .search-form {
+    grid-column: 2;
     position: relative;
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    margin-left: 12px;
+    margin-left: 0;
     vertical-align: middle;
-    margin-top: 15px;
+    margin-top: 0;
+    transform: translateY(12px);
 }
 
 .search-form input[name="search_query"] {
@@ -105,6 +127,7 @@ a:hover {
     top: 50%;
     transform: translateY(-50%);
     transition: opacity 0.2s ease;
+    cursor: text;
 }
 
 .search-form button {
@@ -114,10 +137,84 @@ a:hover {
     border: 1px solid light-dark(#000, #d0d0d0);
     border-radius: 10px;
     background-color: light-dark(#034279, dimgrey);
+    cursor: pointer;
 }
 
-.create_art {
-    margin-left: 16px;
+.order_history {
+    margin-left: 0;
+}
+
+.shopping_cart {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+}
+
+.shopping_cart img {
+    display: block;
+    flex: 0 0 auto;
+    transform: translateY(-1px);
+}
+
+.my_acc_wrapper {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+}
+
+.my_acc {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    user-select: none;
+    white-space: nowrap;
+}
+
+.my_acc img {
+    display: block;
+}
+
+.my_acc:hover {
+    color: royalblue;
+}
+
+.my_acc_menu {
+    display: none;
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    min-width: 210px;
+    padding: 8px 0;
+    background: light-dark(#ffffff, #3a3a3a);
+    border: 1px solid light-dark(#d6d6d6, #666666);
+    border-radius: 10px;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+}
+
+.my_acc_menu.show {
+    display: block;
+}
+
+.my_acc_item {
+    display: block;
+    padding: 9px 14px;
+    color: light-dark(#1a1a1a, #f5f5f5);
+    text-decoration: none;
+    line-height: 1.2;
+}
+
+.my_acc_name {
+    border-bottom: 1px solid light-dark(#ececec, #5a5a5a);
+    margin-bottom: 4px;
+    padding-bottom: 10px;
+}
+
+.my_acc_menu a:hover {
+    background: light-dark(#f3f6fb, #4a4a4a);
+    color: royalblue;
 }
 
 @media (max-width: 1100px) {
@@ -130,14 +227,21 @@ a:hover {
         position: static;
         margin: 10px 12px 0;
         font-size: 18px;
+        display: flex;
         flex-wrap: wrap;
         align-items: center;
         left: auto;
+        right: auto;
         top: auto;
         gap: 10px;
+        padding: 0;
     }
 
-    .menu > :not(.search-form) {
+    .menu-left,
+    .menu-right {
+        width: 100%;
+        justify-content: center;
+        flex-wrap: wrap;
         transform: none;
     }
 
@@ -146,6 +250,7 @@ a:hover {
         width: 100%;
         margin-left: 0;
         margin-top: 4px;
+        transform: none;
     }
 
     .search-form input[name="search_query"] {
