@@ -1,3 +1,0 @@
-Moon: <a href="https://www.flaticon.com/free-icons/dark" title="dark icons">Dark icons created by adriansyah - Flaticon</a>
-Stars: <a href="https://www.flaticon.com/free-icons/sparkle" title="sparkle icons">Sparkle icons created by kornkun - Flaticon</a>
-Sun: <a href="https://www.flaticon.com/free-icons/light-mode" title="light mode icons">Light mode icons created by Fantasyou - Flaticon</a>

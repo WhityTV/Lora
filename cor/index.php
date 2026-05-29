@@ -38,7 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['syslang']) && in_arra
         <script src="index.js"></script>
     </head>
     <body>
-        <img class="logo" src="../icons/mihiway.png" alt="mihiway Logo" width="300" height="175">
+        <img class="logo" src="../icons/mihiway.png" alt="mihiway Logo" width="270" height="175">
         <div class="menu">
             <div class="menu-left">
                 <span class="art_cat_wrapper">
@@ -62,7 +62,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['syslang']) && in_arra
                 </span>
                 <a href="art/saved.php"><strong><?php echo $cor->getLan('saved_art'); ?> | </strong></a>
                 <span class="art_cat_wrapper">
-                    <a href="art/last_art.php"><strong><?php echo $cor->getLan('last_art'); ?></strong></a>
+                    <a href="art/last_art.php"><strong><?php echo $cor->getLan('last_art'); ?> | </strong></a>
+                </span>
+                <span class="order_history">
+                    <a href="art/his.php"><strong><?php echo $cor->getLan('order_history'); ?></strong></a>
                 </span>
             </div>
 
@@ -73,9 +76,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['syslang']) && in_arra
             </form>
 
             <div class="menu-right">
-                <span class="order_history">
-                    <a href="art/his.php"><strong><?php echo $cor->getLan('order_history'); ?> | </strong></a>
-                </span>
                 <span class="seller_dash">
                     <a href="art/seller_dash.php"><strong><?php echo $cor->getLan('seller_dash'); ?> | </strong></a>
                 </span>
@@ -128,4 +128,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['syslang']) && in_arra
             </div>
         </div>
     </body>
+    <footer>
+        <p>
+            <a href="set/help.php"><?php echo $cor->getLan('help'); ?> | </a>
+            <a href="image_credits.php"><?php echo $cor->getLan('image_credits'); ?> | </a>
+            <a href="contact.php"><?php echo $cor->getLan('contact'); ?> | </a>
+            <a href="privacy_policy.php"><?php echo $cor->getLan('privacy_policy'); ?> | </a>
+            <a href="terms_of_service.php"><?php echo $cor->getLan('terms_of_service'); ?> | </a>
+            <a href="imprint.php"><?php echo $cor->getLan('imprint'); ?> | </a>
+            
+            &copy; 2026 mihiway. All rights reserved.
+        </p>
+    </footer>
 </html>
