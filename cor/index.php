@@ -33,7 +33,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['syslang']) && in_arra
 
 <html>
     <head>
+        <link rel="stylesheet" href="theme.css">
         <link rel="stylesheet" href="index.css">
+        <script src="theme.js"></script>
         <script src="jquery-4.0.js"></script>
         <script src="index.js"></script>
     </head>

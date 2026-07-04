@@ -47,7 +47,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['username'], $_POST['p
 
 <html>
     <head>
+        <link rel="stylesheet" href="../theme.css">
         <link rel="stylesheet" href="login.css">
+        <script src="../theme.js"></script>
     </head>
     <body>
         <h1>Login</h1>
@@ -75,12 +77,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['username'], $_POST['p
                 ?>
             </label><br>
             <input type="password" id="password" name="password" autocomplete="current-password"><br><br>
-            <input type="submit" value="<?php echo $login->getLan('login'); ?>">
-            <p>
+            <div class="form_actions">
+                <input type="submit" value="<?php echo $login->getLan('login'); ?>">
+                <p class="auth_links">
                 <a href="forgot_password.php"><?php echo $login->getLan('forgot_pass'); ?></a>
                 |
                 <a href="../reg/register.php"><?php echo $login->getLan('register'); ?></a>
-            </p>
+                </p>
+            </div>
         </form>
         <div class="language_buttons">
             <form method="post">

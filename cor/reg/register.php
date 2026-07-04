@@ -8,6 +8,7 @@ class Register extends Lan {
 }
 
 $register = new Register();
+$errors = [];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['firstname'], $_POST['lastname'], $_POST['username'], $_POST['email'], $_POST['password'], $_POST['confirm_password'])) {
     $firstname = trim($_POST['firstname']);
@@ -16,8 +17,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['firstname'], $_POST['
     $email = trim($_POST['email']);
     $passwordInput = $_POST['password'];
     $confirmPassword = $_POST['confirm_password'];
-    $errors = [];
-
     $allFieldsFilled = ($firstname !== '' && $lastname !== '' && $username !== '' && $email !== '' && $passwordInput !== '' && $confirmPassword !== '');
     if (!$allFieldsFilled) {
         $errors[] = $register->getLan('fill_all_fields');
@@ -70,20 +69,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['firstname'], $_POST['
         exit;
     }
 
-    if (!empty($errors)) {
-        foreach ($errors as $error) {
-            echo "<p>{$error}</p>";
-        }
-    }
 }
 ?>
 
 <html>
     <head>
+        <link rel="stylesheet" href="../theme.css">
         <link rel="stylesheet" href="register.css">
+        <script src="../theme.js"></script>
     </head>
     <body>
         <h1><?php echo $register->getLan('reg'); ?></h1>
+        <?php if (!empty($errors)) { ?>
+            <?php foreach ($errors as $error) { ?>
+                <p><?php echo htmlspecialchars($error, ENT_QUOTES, 'UTF-8'); ?></p>
+            <?php } ?>
+        <?php } ?>
         <form method="post">
             <label for="firstname">
                 <?php

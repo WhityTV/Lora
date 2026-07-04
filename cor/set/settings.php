@@ -12,4 +12,12 @@ if (!isset($_SESSION['userId'])) {
 }
 ?>
 
-<h1>Einstellungen</h1>
+<html>
+	<head>
+		<link rel="stylesheet" href="../theme.css">
+		<script src="../theme.js"></script>
+	</head>
+	<body>
+		<h1>Einstellungen</h1>
+	</body>
+</html>

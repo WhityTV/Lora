@@ -21,6 +21,10 @@ if (!isset($_SESSION['userId'])) {
 ?>
 
 <html>
+    <head>
+        <link rel="stylesheet" href="../theme.css">
+        <script src="../theme.js"></script>
+    </head>
     <body>
         <h1><?php echo $shoppingCart->getLan('shopping_cart'); ?></h1>
     </body>

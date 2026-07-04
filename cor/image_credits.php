@@ -32,8 +32,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['syslang']) && in_arra
 ?>
 
 <html>
-    <h1><?php echo $cor->getLan('image_credits'); ?></h1>
+    <head>
+        <link rel="stylesheet" href="theme.css">
+        <script src="theme.js"></script>
+    </head>
     <body>
+        <h1><?php echo $cor->getLan('image_credits'); ?></h1>
         <div class="content">
             <ul>
                 <li>Moon: <a href="https://www.flaticon.com/free-icons/dark" title="dark icons">Dark icon created by adriansyah - Flaticon</a></li>
