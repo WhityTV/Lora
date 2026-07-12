@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../lan/lan.php';
+require_once __DIR__ . '/../inc/header.php';
 
 class Register extends Lan {
     public function __construct() {
@@ -8,6 +9,7 @@ class Register extends Lan {
 }
 
 $register = new Register();
+mihiway_handle_syslang_post($register);
 $errors = [];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['firstname'], $_POST['lastname'], $_POST['username'], $_POST['email'], $_POST['password'], $_POST['confirm_password'])) {
@@ -74,11 +76,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['firstname'], $_POST['
 
 <html>
     <head>
+        <script src="../theme.js"></script>
         <link rel="stylesheet" href="../theme.css">
         <link rel="stylesheet" href="register.css">
-        <script src="../theme.js"></script>
     </head>
     <body>
+        <?php mihiway_render_header($register, ['rootPrefix' => '../', 'showMenu' => false, 'showLogo' => false, 'showAccount' => false]); ?>
         <h1><?php echo $register->getLan('reg'); ?></h1>
         <?php if (!empty($errors)) { ?>
             <?php foreach ($errors as $error) { ?>
@@ -127,23 +130,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['firstname'], $_POST['
                 <input type="button" value="<?php echo $register->getLan('cancel'); ?>" onclick="window.location.href='../log/login.php';">
             </p>
         </form>
-        <div class="language_buttons">
-            <form method="post">
-                <?php
-                    $syslan = $register->getSysLan();
-                    if ($syslan == "DE") {
-                        echo '<button type="submit" name="syslang" value="EN"><img src="../../icons/UK.png" alt="EN" width="25" height="25"></button>';
-                    } elseif ($syslan == "EN") {
-                        echo '<button type="submit" name="syslang" value="DE"><img src="../../icons/DE.png" alt="DE" width="25" height="25"></button>';
-                    }
-                ?>
-                <?php
-                    if (isset($_POST['syslang']) && in_array($_POST['syslang'], ['EN', 'DE'])) {
-                        $register->setSysLan($_POST['syslang']);
-                        header("Refresh:0");
-                    }
-                ?>
-            </form>
-        </div>
+        <?php mihiway_render_footer($register, ['rootPrefix' => '../']); ?>
     </body>
 </html>

@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../lan/lan.php';
+require_once __DIR__ . '/../inc/header.php';
 
 class ForgotPassword extends Lan {
     public function __construct() {
@@ -8,6 +9,7 @@ class ForgotPassword extends Lan {
 }
 
 $forgotPassword = new ForgotPassword();
+mihiway_handle_syslang_post($forgotPassword);
 $statusMsg = '';
 $statusMsgClass = '';
 $errors = [];
@@ -47,11 +49,6 @@ function buildMailHeaders(string $lang): string {
     $headers .= "Content-Type: text/html; charset=UTF-8\r\n";
     $headers .= 'Content-Language: ' . $lang . "\r\n";
     return $headers;
-}
-
-if (isset($_POST['syslang']) && in_array($_POST['syslang'], ['EN', 'DE'])) {
-    $forgotPassword->setSysLan($_POST['syslang']);
-    header("Refresh:0");
 }
 
 // UI states: mail -> code -> password.
@@ -360,19 +357,9 @@ $pageTitle = $step === 'password' ? $forgotPassword->getLan('reset_pass') : $for
         <link rel="stylesheet" href="login.css">
         <script src="../theme.js"></script>
     </head>
+        <script src="../theme.js"></script>
     <body>
-        <div class="language_buttons">
-            <form method="post">
-                <?php
-                    $syslan = $forgotPassword->getSysLan();
-                    if ($syslan == "DE") {
-                        echo '<button type="submit" name="syslang" value="EN"><img src="../../icons/UK.png" alt="EN" width="25" height="25"></button>';
-                    } elseif ($syslan == "EN") {
-                        echo '<button type="submit" name="syslang" value="DE"><img src="../../icons/DE.png" alt="DE" width="25" height="25"></button>';
-                    }
-                ?>
-            </form>
-        </div>
+        <?php mihiway_render_header($forgotPassword, ['rootPrefix' => '../', 'showMenu' => false, 'showLogo' => true, 'showAccount' => false]); ?>
         <h1>
         <?php
         echo $pageTitle;
@@ -464,5 +451,6 @@ $pageTitle = $step === 'password' ? $forgotPassword->getLan('reset_pass') : $for
         <?php
         }
         ?>
+        <?php mihiway_render_footer($forgotPassword, ['rootPrefix' => '../']); ?>
     </body>
 </html>

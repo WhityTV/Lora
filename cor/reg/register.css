@@ -20,16 +20,25 @@ h1 {
 }
 
 body > p {
-    width: min(560px, 100%);
+    width: min(460px, 100%);
     margin: 0 0 10px;
     padding: 10px 14px;
     border-radius: 12px;
+}
+
+body > p,
+body > p.status-error {
     border: 1px solid light-dark(#d8cfcf, #7a5555);
     background: light-dark(#fff5f5, #4f2e2e);
 }
 
+body > p.status-success {
+    border: 1px solid light-dark(#b9dfc0, #3f7d50);
+    background: light-dark(#eefaf0, #23442d);
+}
+
 form {
-    width: min(560px, 100%);
+    width: min(460px, 100%);
     padding: 24px;
     border-radius: 20px;
     border: 1px solid light-dark(#d8d8d8, #5f5f5f);
@@ -44,6 +53,7 @@ label {
 }
 
 input[type="text"],
+input[type="mail"],
 input[type="email"],
 input[type="password"] {
     width: 100%;
@@ -58,9 +68,19 @@ input[type="password"] {
 }
 
 input[type="text"]::placeholder,
+input[type="mail"]::placeholder,
 input[type="email"]::placeholder,
 input[type="password"]::placeholder {
     text-align: left;
+}
+
+input[type="text"]:focus,
+input[type="mail"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus {
+    outline: none;
+    border-color: #2c7dc0;
+    box-shadow: 0 0 0 3px rgba(44, 125, 192, 0.22);
 }
 
 input[type="submit"],
@@ -98,6 +118,40 @@ form p {
     align-items: center;
     justify-content: center;
     gap: 10px;
+}
+
+form a {
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.form_actions {
+    margin-top: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.form_actions input[type="submit"] {
+    min-width: 150px;
+}
+
+.auth_links {
+    margin: 0;
+    width: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+input[type="submit"][name="cancel_reset"] {
+    background: linear-gradient(135deg, #b01e1e, #d94444);
+}
+
+input[type="submit"][name="cancel_reset"]:hover {
+    filter: brightness(1.03);
 }
 
 .language_buttons {

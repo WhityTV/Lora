@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../lan/lan.php';
+require_once __DIR__ . '/../inc/header.php';
 
 class Login extends Lan {
     public function __construct() {
@@ -9,6 +10,7 @@ class Login extends Lan {
 }
 
 $login = new Login();
+mihiway_handle_syslang_post($login);
 $statusMsg = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['username'], $_POST['password'])) {
@@ -47,11 +49,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['username'], $_POST['p
 
 <html>
     <head>
+        <script src="../theme.js"></script>
         <link rel="stylesheet" href="../theme.css">
         <link rel="stylesheet" href="login.css">
-        <script src="../theme.js"></script>
     </head>
     <body>
+        <?php mihiway_render_header($login, ['rootPrefix' => '../', 'showMenu' => false, 'showLogo' => false, 'showAccount' => false]); ?>
         <h1>Login</h1>
         <?php
         if ($statusMsg !== '') {
@@ -86,23 +89,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['username'], $_POST['p
                 </p>
             </div>
         </form>
-        <div class="language_buttons">
-            <form method="post">
-                <?php
-                    $syslan = $login->getSysLan();
-                    if ($syslan == "DE") {
-                        echo '<button type="submit" name="syslang" value="EN"><img src="../../icons/UK.png" alt="EN" width="25" height="25"></button>';
-                    } elseif ($syslan == "EN") {
-                        echo '<button type="submit" name="syslang" value="DE"><img src="../../icons/DE.png" alt="DE" width="25" height="25"></button>';
-                    }
-                ?>
-                <?php
-                    if (isset($_POST['syslang']) && in_array($_POST['syslang'], ['EN', 'DE'])) {
-                        $login->setSysLan($_POST['syslang']);
-                        header("Refresh:0");
-                    }
-                ?>
-            </form>
-        </div>
+        <?php mihiway_render_footer($login, ['rootPrefix' => '../']); ?>
     </body>
 </html>
