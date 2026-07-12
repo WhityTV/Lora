@@ -6,7 +6,7 @@ require_once __DIR__ . '/../../inc/header.php';
 $summary = new Lan();
 mihiway_handle_syslang_post($summary);
 ?>
-
+<!DOCTYPE html>
 <html>
 	<head>
 		<script src="../../theme.js"></script>

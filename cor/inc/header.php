@@ -131,7 +131,9 @@ function mihiway_render_header(Lan $app, array $options = []): void {
         echo '</p>';
         echo '</div>';
         echo '</span>';
+        echo '<span class="art_cat_wrapper">';
         echo '<a href="' . htmlspecialchars($rootPrefix . 'art/saved.php', ENT_QUOTES, 'UTF-8') . '"><strong>' . htmlspecialchars($app->getLan('saved_art'), ENT_QUOTES, 'UTF-8') . ' | </strong></a>';
+        echo '</span>';
         echo '<span class="art_cat_wrapper">';
         echo '<a href="' . htmlspecialchars($rootPrefix . 'art/last_art.php', ENT_QUOTES, 'UTF-8') . '"><strong>' . htmlspecialchars($app->getLan('last_art'), ENT_QUOTES, 'UTF-8') . ' | </strong></a>';
         echo '</span>';

@@ -12,7 +12,7 @@ header('Pragma: no-cache');
 header('Expires: 0');
 
 ?>
-
+<!DOCTYPE html>
 <html>
 	<head>
 		<script src="../theme.js"></script>

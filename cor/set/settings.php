@@ -16,7 +16,7 @@ if (!isset($_SESSION['userId'])) {
 	exit;
 }
 ?>
-
+<!DOCTYPE html>
 <html>
 	<head>
 		<script src="../theme.js"></script>

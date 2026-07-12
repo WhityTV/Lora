@@ -73,7 +73,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['firstname'], $_POST['
 
 }
 ?>
-
+<!DOCTYPE html>
 <html>
     <head>
         <script src="../theme.js"></script>
@@ -81,55 +81,57 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['firstname'], $_POST['
         <link rel="stylesheet" href="register.css">
     </head>
     <body>
-        <?php mihiway_render_header($register, ['rootPrefix' => '../', 'showMenu' => false, 'showLogo' => false, 'showAccount' => false]); ?>
-        <h1><?php echo $register->getLan('reg'); ?></h1>
-        <?php if (!empty($errors)) { ?>
-            <?php foreach ($errors as $error) { ?>
-                <p><?php echo htmlspecialchars($error, ENT_QUOTES, 'UTF-8'); ?></p>
+        <?php mihiway_render_header($register, ['rootPrefix' => '../', 'showMenu' => false, 'showLogo' => true, 'showAccount' => false]); ?>
+        <div class="auth_content">
+            <h1><?php echo $register->getLan('reg'); ?></h1>
+            <?php if (!empty($errors)) { ?>
+                <?php foreach ($errors as $error) { ?>
+                    <p><?php echo htmlspecialchars($error, ENT_QUOTES, 'UTF-8'); ?></p>
+                <?php } ?>
             <?php } ?>
-        <?php } ?>
-        <form method="post">
-            <label for="firstname">
-                <?php
-                    echo($register->getLan('firstname'));
-                ?>
-            </label><br>
-            <input type="text" id="firstname" name="firstname" value="<?php echo htmlspecialchars($_POST['firstname'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"><br>
-            <label for="lastname">
-                <?php
-                    echo($register->getLan('lastname'));
-                ?>
-            </label><br>
-            <input type="text" id="lastname" name="lastname" value="<?php echo htmlspecialchars($_POST['lastname'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"><br>
-            <label for="username">
-                <?php
-                    echo($register->getLan('usrname'));
-                ?>
-            </label><br>
-            <input type="text" id="username" name="username" value="<?php echo htmlspecialchars($_POST['username'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"><br>
-            <label for="email">
-                <?php
-                    echo($register->getLan('mail'));
-                ?>
-            </label><br>
-            <input type="email" id="email" name="email" value="<?php echo htmlspecialchars($_POST['email'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"><br>
-            <label for="password">
-                <?php
-                    echo($register->getLan('pass'));
-                ?>
-            </label><br>
-            <input type="password" id="password" name="password" autocomplete="new-password"><br>
-            <label for="confirm_password">
-                <?php
-                    echo($register->getLan('confirm_pass'));
-                ?>
-            </label><br>
-            <input type="password" id="confirm_password" name="confirm_password" autocomplete="new-password">
-            <p>
-                <input type="submit" value="<?php echo $register->getLan('register'); ?>">
-                <input type="button" value="<?php echo $register->getLan('cancel'); ?>" onclick="window.location.href='../log/login.php';">
-            </p>
-        </form>
+            <form method="post">
+                <label for="firstname">
+                    <?php
+                        echo($register->getLan('firstname'));
+                    ?>
+                </label><br>
+                <input type="text" id="firstname" name="firstname" value="<?php echo htmlspecialchars($_POST['firstname'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"><br>
+                <label for="lastname">
+                    <?php
+                        echo($register->getLan('lastname'));
+                    ?>
+                </label><br>
+                <input type="text" id="lastname" name="lastname" value="<?php echo htmlspecialchars($_POST['lastname'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"><br>
+                <label for="username">
+                    <?php
+                        echo($register->getLan('usrname'));
+                    ?>
+                </label><br>
+                <input type="text" id="username" name="username" value="<?php echo htmlspecialchars($_POST['username'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"><br>
+                <label for="email">
+                    <?php
+                        echo($register->getLan('mail'));
+                    ?>
+                </label><br>
+                <input type="email" id="email" name="email" value="<?php echo htmlspecialchars($_POST['email'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"><br>
+                <label for="password">
+                    <?php
+                        echo($register->getLan('pass'));
+                    ?>
+                </label><br>
+                <input type="password" id="password" name="password" autocomplete="new-password"><br>
+                <label for="confirm_password">
+                    <?php
+                        echo($register->getLan('confirm_pass'));
+                    ?>
+                </label><br>
+                <input type="password" id="confirm_password" name="confirm_password" autocomplete="new-password">
+                <p>
+                    <input type="submit" value="<?php echo $register->getLan('register'); ?>">
+                    <input type="button" value="<?php echo $register->getLan('cancel'); ?>" onclick="window.location.href='../log/login.php';">
+                </p>
+            </form>
+        </div>
         <?php mihiway_render_footer($register, ['rootPrefix' => '../']); ?>
     </body>
 </html>

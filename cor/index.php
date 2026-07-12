@@ -27,7 +27,7 @@ if (isset($_SESSION['userId'])) {
 
 mihiway_handle_syslang_post($cor);
 ?>
-
+<!DOCTYPE html>
 <html>
     <head>
         <script src="theme.js"></script>

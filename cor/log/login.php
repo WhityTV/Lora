@@ -46,7 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['username'], $_POST['p
     }
 }
 ?>
-
+<!DOCTYPE html>
 <html>
     <head>
         <script src="../theme.js"></script>
@@ -54,41 +54,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['username'], $_POST['p
         <link rel="stylesheet" href="login.css">
     </head>
     <body>
-        <?php mihiway_render_header($login, ['rootPrefix' => '../', 'showMenu' => false, 'showLogo' => false, 'showAccount' => false]); ?>
-        <h1>Login</h1>
-        <?php
-        if ($statusMsg !== '') {
-        ?>
-            <p>
-                <?php
-                echo htmlspecialchars($statusMsg, ENT_QUOTES, 'UTF-8');
-                ?>
-            </p>
-        <?php
-        }
-        ?>
-        <form method="post">
-            <label for="username">
-                <?php
-                    echo($login->getLan('usrname'));
-                ?>
-            </label><br>
-            <input type="text" id="username" name="username" autocomplete="username"><br>
-            <label for="password">
-                <?php
-                    echo($login->getLan('pass'));
-                ?>
-            </label><br>
-            <input type="password" id="password" name="password" autocomplete="current-password"><br><br>
-            <div class="form_actions">
-                <input type="submit" value="<?php echo $login->getLan('login'); ?>">
-                <p class="auth_links">
-                <a href="forgot_password.php"><?php echo $login->getLan('forgot_pass'); ?></a>
-                |
-                <a href="../reg/register.php"><?php echo $login->getLan('register'); ?></a>
+        <?php mihiway_render_header($login, ['rootPrefix' => '../', 'showMenu' => false, 'showLogo' => true, 'showAccount' => false]); ?>
+        <div class="auth_content">
+            <h1>Login</h1>
+            <?php
+            if ($statusMsg !== '') {
+            ?>
+                <p>
+                    <?php
+                    echo htmlspecialchars($statusMsg, ENT_QUOTES, 'UTF-8');
+                    ?>
                 </p>
-            </div>
-        </form>
+            <?php
+            }
+            ?>
+            <form method="post">
+                <label for="username">
+                    <?php
+                        echo($login->getLan('usrname'));
+                    ?>
+                </label><br>
+                <input type="text" id="username" name="username" autocomplete="username"><br>
+                <label for="password">
+                    <?php
+                        echo($login->getLan('pass'));
+                    ?>
+                </label><br>
+                <input type="password" id="password" name="password" autocomplete="current-password"><br><br>
+                <div class="form_actions">
+                    <input type="submit" value="<?php echo $login->getLan('login'); ?>">
+                    <p class="auth_links">
+                    <a href="forgot_password.php"><?php echo $login->getLan('forgot_pass'); ?></a>
+                    |
+                    <a href="../reg/register.php"><?php echo $login->getLan('register'); ?></a>
+                    </p>
+                </div>
+            </form>
+        </div>
         <?php mihiway_render_footer($login, ['rootPrefix' => '../']); ?>
     </body>
 </html>

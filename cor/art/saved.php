@@ -16,7 +16,7 @@ $saved = new Lan();
 
 mihiway_handle_syslang_post($saved);
 ?>
-
+<!DOCTYPE html>
 <html>
 	<head>
 		<script src="../theme.js"></script>

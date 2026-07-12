@@ -345,7 +345,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_password'])) {
 
 $pageTitle = $step === 'password' ? $forgotPassword->getLan('reset_pass') : $forgotPassword->getLan('forgot_pass');
 ?>
-
+<!DOCTYPE html>
 <html>
     <head>
         <title>
@@ -360,97 +360,99 @@ $pageTitle = $step === 'password' ? $forgotPassword->getLan('reset_pass') : $for
         <script src="../theme.js"></script>
     <body>
         <?php mihiway_render_header($forgotPassword, ['rootPrefix' => '../', 'showMenu' => false, 'showLogo' => true, 'showAccount' => false]); ?>
-        <h1>
-        <?php
-        echo $pageTitle;
-        ?>
-        </h1>
-
-        <?php
-        if ($statusMsg !== '') {
-        ?>
-            <p class="<?php echo htmlspecialchars($statusMsgClass, ENT_QUOTES, 'UTF-8'); ?>">
-                <?php
-                echo htmlspecialchars($statusMsg, ENT_QUOTES, 'UTF-8');
-                ?>
-            </p>
-        <?php
-        }
-        ?>
-
-        <?php
-        if (!empty($errors)) {
-        ?>
+        <div class="auth_content">
+            <h1>
             <?php
-            foreach ($errors as $error) {
+            echo $pageTitle;
             ?>
-                <p>
-                    <?php
-                    echo htmlspecialchars($error, ENT_QUOTES, 'UTF-8');
-                    ?>
-                </p>
-        <?php
-            }
-        }
-        ?>
+            </h1>
 
-        <?php
-        // Render form based on current step. 
-        if ($step === 'mail') {
-        ?>
-            <form method="post">
-                <label for="mail">
-                    <?php echo $forgotPassword->getLan('mail');
-                    ?>
-                </label><br>
-                <input type="email" id="mail" name="mail" required value="<?php echo htmlspecialchars($_POST['mail'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
-                <p>
-                    <input type="submit" name="send_code" value="<?php echo $forgotPassword->getLan('receive_code'); ?>">
-                    <input type="submit" name="cancel_reset" value="<?php echo $forgotPassword->getLan('cancel'); ?>" formnovalidate>
-                </p>
-            </form>
-        <?php
-        } elseif ($step === 'code') {
-        ?>
-            <form method="post">
-                <p>
-                    <input type="submit" name="resend_code" value="<?php echo $forgotPassword->getLan('resend_code'); ?>" formnovalidate>
-                </p>
-                <label for="code">
+            <?php
+            if ($statusMsg !== '') {
+            ?>
+                <p class="<?php echo htmlspecialchars($statusMsgClass, ENT_QUOTES, 'UTF-8'); ?>">
                     <?php
-                    echo $forgotPassword->getLan('pass_reset_code');
+                    echo htmlspecialchars($statusMsg, ENT_QUOTES, 'UTF-8');
                     ?>
-                </label><br>
-                <input type="text" id="code" name="code" required>
-                <p>
-                    <input type="submit" name="verify_code" value="<?php echo $forgotPassword->getLan('submit'); ?>">
-                    <input type="submit" name="cancel_reset" value="<?php echo $forgotPassword->getLan('cancel'); ?>" formnovalidate>
                 </p>
-            </form>
-        <?php
-        } elseif ($step === 'password') {
-        ?>
-            <form method="post">
-                <label for="new_password">
-                    <?php
-                    echo $forgotPassword->getLan('new_pass');
-                    ?>
-                </label><br>
-                <input type="password" id="new_password" name="new_password" autocomplete="new-password" required><br>
-                <label for="confirm_password">
-                    <?php
-                    echo $forgotPassword->getLan('confirm_pass');
-                    ?>
-                </label><br>
-                <input type="password" id="confirm_password" name="confirm_password" autocomplete="new-password" required>
-                <p>
-                    <input type="submit" name="save_password" value="<?php echo $forgotPassword->getLan('register'); ?>">
-                    <input type="submit" name="cancel_reset" value="<?php echo $forgotPassword->getLan('cancel'); ?>" formnovalidate>
-                </p>
-            </form>
-        <?php
-        }
-        ?>
+            <?php
+            }
+            ?>
+
+            <?php
+            if (!empty($errors)) {
+            ?>
+                <?php
+                foreach ($errors as $error) {
+                ?>
+                    <p>
+                        <?php
+                        echo htmlspecialchars($error, ENT_QUOTES, 'UTF-8');
+                        ?>
+                    </p>
+            <?php
+                }
+            }
+            ?>
+
+            <?php
+            // Render form based on current step.
+            if ($step === 'mail') {
+            ?>
+                <form method="post">
+                    <label for="mail">
+                        <?php echo $forgotPassword->getLan('mail');
+                        ?>
+                    </label><br>
+                    <input type="email" id="mail" name="mail" required value="<?php echo htmlspecialchars($_POST['mail'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
+                    <p>
+                        <input type="submit" name="send_code" value="<?php echo $forgotPassword->getLan('receive_code'); ?>">
+                        <input type="submit" name="cancel_reset" value="<?php echo $forgotPassword->getLan('cancel'); ?>" formnovalidate>
+                    </p>
+                </form>
+            <?php
+            } elseif ($step === 'code') {
+            ?>
+                <form method="post">
+                    <p>
+                        <input type="submit" name="resend_code" value="<?php echo $forgotPassword->getLan('resend_code'); ?>" formnovalidate>
+                    </p>
+                    <label for="code">
+                        <?php
+                        echo $forgotPassword->getLan('pass_reset_code');
+                        ?>
+                    </label><br>
+                    <input type="text" id="code" name="code" required>
+                    <p>
+                        <input type="submit" name="verify_code" value="<?php echo $forgotPassword->getLan('submit'); ?>">
+                        <input type="submit" name="cancel_reset" value="<?php echo $forgotPassword->getLan('cancel'); ?>" formnovalidate>
+                    </p>
+                </form>
+            <?php
+            } elseif ($step === 'password') {
+            ?>
+                <form method="post">
+                    <label for="new_password">
+                        <?php
+                        echo $forgotPassword->getLan('new_pass');
+                        ?>
+                    </label><br>
+                    <input type="password" id="new_password" name="new_password" autocomplete="new-password" required><br>
+                    <label for="confirm_password">
+                        <?php
+                        echo $forgotPassword->getLan('confirm_pass');
+                        ?>
+                    </label><br>
+                    <input type="password" id="confirm_password" name="confirm_password" autocomplete="new-password" required>
+                    <p>
+                        <input type="submit" name="save_password" value="<?php echo $forgotPassword->getLan('register'); ?>">
+                        <input type="submit" name="cancel_reset" value="<?php echo $forgotPassword->getLan('cancel'); ?>" formnovalidate>
+                    </p>
+                </form>
+            <?php
+            }
+            ?>
+        </div>
         <?php mihiway_render_footer($forgotPassword, ['rootPrefix' => '../']); ?>
     </body>
 </html>

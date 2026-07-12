@@ -7,7 +7,7 @@ $search = new Lan();
 
 mihiway_handle_syslang_post($search);
 ?>
-
+<!DOCTYPE html>
 <html>
 	<head>
 		<script src="../theme.js"></script>

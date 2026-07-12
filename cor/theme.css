@@ -429,7 +429,7 @@ body.homepage {
 .site_menu {
     font-size: x-large;
     position: absolute;
-    top: 84px;
+    top: 89px;
     left: 0;
     right: 0;
     display: flex;
@@ -480,7 +480,7 @@ body.homepage {
     display: block;
     width: clamp(150px, 19vw, 270px);
     height: auto;
-    margin-left: 8px;
+    margin-left: 0;
     margin-top: -30px;
     background-color: transparent;
     background-repeat: no-repeat;
@@ -535,7 +535,7 @@ body.homepage {
 .top_controls {
     position: absolute;
     top: 2px;
-    right: 5px;
+    right: 0;
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -562,8 +562,9 @@ body.homepage {
     margin-left: 0;
     vertical-align: middle;
     margin-top: 0;
-    transform: translateY(12px);
+    transform: translateY(3px);
 }
+
 
 .search-form input[name="search_query"] {
     padding-left: 30px;
@@ -608,6 +609,11 @@ html[data-theme="dark"] input[type="reset"] {
     margin-left: 0;
 }
 
+.seller_dash {
+    display: inline-flex;
+    align-items: center;
+}
+
 .shopping_cart {
     display: inline-flex;
     align-items: center;
@@ -618,7 +624,6 @@ html[data-theme="dark"] input[type="reset"] {
 .shopping_cart img {
     display: block;
     flex: 0 0 auto;
-    transform: translateY(-1px);
 }
 
 .my_acc_wrapper {

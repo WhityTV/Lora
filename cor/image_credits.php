@@ -27,7 +27,7 @@ if (isset($_SESSION['userId'])) {
     }
 }
 ?>
-
+<!DOCTYPE html>
 <html>
     <head>
         <script src="theme.js"></script>
